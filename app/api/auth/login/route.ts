@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByEmail, createUser } from '@/lib/airtable';
+import { getUserByEmail } from '@/lib/airtable';
 
 export async function POST(request: NextRequest) {
   try {

@@ -20,17 +20,18 @@ type Goal = {
   Email: string;
   'Created At'?: string;
   'Updated At'?: string;
-  userId: string;
-  UserName: string;
+  userId?: string;
+  UserName?: string;
 };
 
-type GoalListProps = {
+interface GoalListProps {
   goals: Goal[];
-  onGoalUpdated: (goal: Goal) => void;
+  onGoalUpdated: (updatedGoal: Goal) => void;
   onGoalDeleted: (id: string) => void;
-};
+  isAdmin?: boolean;
+}
 
-export default function GoalList({ goals, onGoalUpdated, onGoalDeleted }: GoalListProps) {
+export default function GoalList({ goals, onGoalUpdated, onGoalDeleted, isAdmin = false }: GoalListProps) {
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [viewType, setViewType] = useState<ViewType>('grid');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -531,6 +532,13 @@ export default function GoalList({ goals, onGoalUpdated, onGoalDeleted }: GoalLi
               </AlertDialog>
             </div>
           </div>
+          {isAdmin && (
+            <div className="text-sm text-gray-500">
+              <p>User: {goal.Email}</p>
+              <p>Created: {new Date(goal['Created At'] || '').toLocaleDateString()}</p>
+              <p>Updated: {new Date(goal['Updated At'] || '').toLocaleDateString()}</p>
+            </div>
+          )}
         </Card>
       ))}
     </div>
@@ -539,8 +547,8 @@ export default function GoalList({ goals, onGoalUpdated, onGoalDeleted }: GoalLi
   if (goals.length === 0) {
     return (
       <div className="text-center py-20 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
-        <p className="text-gray-500 text-lg">No goals yet! Let's set one up 🎯</p>
-        <p className="text-gray-400 text-sm mt-2">Click the "Create Goal" button to get started</p>
+        <p className="text-gray-500 text-lg">No goals yet! Let&apos;s set one up 🎯</p>
+        <p className="text-gray-400 text-sm mt-2">Click the &quot;Create Goal&quot; button to get started</p>
       </div>
     );
   }

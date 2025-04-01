@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserGoals, createGoal, updateGoal, deleteGoal } from '@/lib/airtable';
+import { getUserGoals, createGoal } from '@/lib/airtable';
 
 // Get goals for a user
 export async function GET(request: NextRequest) {

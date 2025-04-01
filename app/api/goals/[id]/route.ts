@@ -1,17 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { updateGoal, deleteGoal } from '@/lib/airtable';
 
+interface GoalUpdates {
+  Goal?: string;
+  'Target Date'?: string;
+  Status?: 'pending' | 'completed' | 'incomplete';
+}
+
 // Update a goal
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: Request) {
   try {
-    const id = params.id;
+    const id = request.url.split('/').pop();
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: 'Goal ID is required' },
+        { status: 400 }
+      );
+    }
+
     const { goal, targetDate, status } = await request.json();
 
     // Prepare updates
-    const updates: any = {};
+    const updates: GoalUpdates = {};
     if (goal) updates.Goal = goal;
     if (targetDate) updates['Target Date'] = targetDate;
     if (status) updates.Status = status;
@@ -44,12 +54,16 @@ export async function PUT(
 }
 
 // Delete a goal
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request) {
   try {
-    const { id } = params;
+    const id = request.url.split('/').pop();
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: 'Goal ID is required' },
+        { status: 400 }
+      );
+    }
+
     const success = await deleteGoal(id);
 
     if (success) {

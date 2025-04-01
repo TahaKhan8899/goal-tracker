@@ -1,11 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getGoalsDueToday } from '@/lib/airtable';
 import { sendReminderEmail } from '@/lib/email';
 
-export async function GET(request: NextRequest) {
+type Goal = {
+  id: string;
+  Goal: string;
+  'Target Date': string;
+  Status: 'pending' | 'completed' | 'incomplete';
+  Email: string;
+  'Created At'?: string;
+  'Updated At'?: string;
+  userId?: string;
+  UserName?: string;
+};
+
+export async function GET() {
   try {
     // Get goals due today with pending status
-    const goalsDueToday = await getGoalsDueToday();
+    const goalsDueToday = await getGoalsDueToday() as Goal[];
     
     if (goalsDueToday.length === 0) {
       return NextResponse.json({ success: true, message: 'No reminders to send today' });

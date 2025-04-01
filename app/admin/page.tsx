@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Toaster } from '@/components/ui/sonner';
@@ -18,8 +17,8 @@ type Goal = {
   Email: string;
   'Created At'?: string;
   'Updated At'?: string;
-  userId: string;
-  UserName: string;
+  userId?: string;
+  UserName?: string;
 };
 
 export default function AdminDashboard() {
@@ -29,7 +28,7 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [userFilter, setUserFilter] = useState('');
   const router = useRouter();
 
@@ -68,9 +67,25 @@ export default function AdminDashboard() {
   }, [router]);
 
   // Apply filters when goals or filter settings change
+  const filterGoals = useCallback(() => {
+    let filtered = [...goals];
+    
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(goal => goal.Status === statusFilter);
+    }
+    
+    if (userFilter) {
+      filtered = filtered.filter(goal => 
+        goal.Email.toLowerCase().includes(userFilter.toLowerCase())
+      );
+    }
+    
+    setFilteredGoals(filtered);
+  }, [goals, statusFilter, userFilter]);
+
   useEffect(() => {
     filterGoals();
-  }, [goals, statusFilter, userFilter]);
+  }, [filterGoals]);
 
   // Fetch all goals for admin
   const fetchAllGoals = async (adminEmail: string) => {
@@ -96,23 +111,6 @@ export default function AdminDashboard() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Filter goals based on status and user
-  const filterGoals = () => {
-    let filtered = [...goals];
-    
-    // Filter by status
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(goal => goal.Status === statusFilter);
-    }
-    
-    // Filter by user
-    if (userFilter && userFilter !== 'all') {
-      filtered = filtered.filter(goal => goal.userId === userFilter);
-    }
-    
-    setFilteredGoals(filtered);
   };
 
   // Handle goal update
@@ -184,7 +182,7 @@ export default function AdminDashboard() {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-              <p className="text-gray-500">Managing all users' goals</p>
+              <p className="text-gray-500">Managing all users goals</p>
             </div>
             <Button variant="outline" onClick={() => router.push('/dashboard')}>
               Back to My Goals
@@ -203,80 +201,89 @@ export default function AdminDashboard() {
               </Button>
             </div>
           ) : (
-            <>
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="text-sm font-medium text-gray-500">Total Goals</div>
-                    <div className="text-3xl font-bold">{stats.total}</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="text-sm font-medium text-green-500">Completed</div>
-                    <div className="text-3xl font-bold">{stats.completed}</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="text-sm font-medium text-yellow-500">Pending</div>
-                    <div className="text-3xl font-bold">{stats.pending}</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="text-sm font-medium text-red-500">Incomplete</div>
-                    <div className="text-3xl font-bold">{stats.incomplete}</div>
-                  </CardContent>
-                </Card>
-              </div>
+            <div className="grid gap-6">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <h3 className="text-2xl font-bold">{stats.total}</h3>
+                      <p className="text-gray-500">Total Goals</p>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <h3 className="text-2xl font-bold text-green-600">{stats.completed}</h3>
+                      <p className="text-gray-500">Completed</p>
+                    </div>
+                    <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                      <h3 className="text-2xl font-bold text-yellow-600">{stats.pending}</h3>
+                      <p className="text-gray-500">Pending</p>
+                    </div>
+                    <div className="text-center p-4 bg-red-50 rounded-lg">
+                      <h3 className="text-2xl font-bold text-red-600">{stats.incomplete}</h3>
+                      <p className="text-gray-500">Incomplete</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-              {/* Filters */}
-              <div className="flex flex-col md:flex-row gap-4 mb-8">
-                <div className="w-full md:w-1/3">
-                  <label className="block text-sm font-medium mb-1">
-                    Filter by User
-                  </label>
-                  <Select 
-                    value={userFilter || 'all'} 
-                    onValueChange={(value) => setUserFilter(value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a user" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Users</SelectItem>
-                      {getUniqueUsers().map(user => (
-                        <SelectItem key={user.id} value={user.id}>
-                          {user.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col md:flex-row gap-4 mb-4">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Filter by Status
+                      </label>
+                      <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Statuses</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="incomplete">Incomplete</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Filter by User
+                      </label>
+                      <Select value={userFilter} onValueChange={setUserFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select user" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">All Users</SelectItem>
+                          {getUniqueUsers().map(user => (
+                            <SelectItem key={user.id} value={user.email}>
+                              {user.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
 
-              {isLoading ? (
-                <div className="text-center py-10">
-                  <p>Loading goals...</p>
-                </div>
-              ) : (
-                <>
-                  <h2 className="text-xl font-semibold mb-4">
-                    {filteredGoals.length} Goals 
-                    {statusFilter !== 'all' ? ` (${statusFilter})` : ''}
-                    {userFilter && userFilter !== 'all' ? ` for ${goals.find(g => g.userId === userFilter)?.UserName}` : ''}
-                  </h2>
-                  
-                  <GoalList 
-                    goals={filteredGoals}
-                    onGoalUpdated={handleGoalUpdated}
-                    onGoalDeleted={handleGoalDeleted}
-                  />
-                </>
-              )}
-            </>
+                  {isLoading ? (
+                    <div className="flex items-center justify-center py-10">
+                      <div className="w-8 h-8 border-4 border-t-primary border-r-transparent border-l-transparent border-b-transparent rounded-full animate-spin"></div>
+                    </div>
+                  ) : filteredGoals.length === 0 ? (
+                    <div className="text-center py-10">
+                      <p className="text-gray-500">No goals found</p>
+                      <p className="text-gray-400 text-sm mt-2">Don&apos;t see what you&apos;re looking for?</p>
+                    </div>
+                  ) : (
+                    <GoalList
+                      goals={filteredGoals}
+                      onGoalUpdated={handleGoalUpdated}
+                      onGoalDeleted={handleGoalDeleted}
+                      isAdmin={true}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           )}
         </div>
       )}
