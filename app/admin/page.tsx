@@ -29,7 +29,7 @@ export default function AdminDashboard() {
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [userFilter, setUserFilter] = useState('');
+  const [userFilter, setUserFilter] = useState('all');
   const router = useRouter();
 
   // Check for admin permission
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
       filtered = filtered.filter(goal => goal.Status === statusFilter);
     }
     
-    if (userFilter) {
+    if (userFilter !== 'all') {
       filtered = filtered.filter(goal => 
         goal.Email.toLowerCase().includes(userFilter.toLowerCase())
       );
@@ -230,22 +230,6 @@ export default function AdminDashboard() {
                   <div className="flex flex-col md:flex-row gap-4 mb-4">
                     <div className="flex-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Filter by Status
-                      </label>
-                      <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Statuses</SelectItem>
-                          <SelectItem value="completed">Completed</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="incomplete">Incomplete</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex-1">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Filter by User
                       </label>
                       <Select value={userFilter} onValueChange={setUserFilter}>
@@ -253,7 +237,7 @@ export default function AdminDashboard() {
                           <SelectValue placeholder="Select user" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All Users</SelectItem>
+                          <SelectItem value="all">All Users</SelectItem>
                           {getUniqueUsers().map(user => (
                             <SelectItem key={user.id} value={user.email}>
                               {user.name}
