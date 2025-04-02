@@ -28,7 +28,7 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter] = useState<string>('all');
   const [userFilter, setUserFilter] = useState('all');
   const router = useRouter();
 
