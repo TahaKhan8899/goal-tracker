@@ -222,15 +222,15 @@ export default function GoalList({ goals, onGoalUpdated, onGoalDeleted, isAdmin 
   );
 
   const renderGridView = () => (
-    <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+    <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6 px-2 pb-3">
       {sortedAndFilteredGoals.map((goal) => (
-        <div key={goal.id} className="break-inside-avoid">
+        <div key={goal.id} className="break-inside-avoid mb-6">
           <Card 
             className={`
-              transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg flex flex-col h-fit
-              ${goal.Status === 'completed' ? 'border-emerald-500/50 shadow-emerald-100' : 
-                goal.Status === 'incomplete' ? 'border-rose-500/50 shadow-rose-100' : 
-                'border-gray-200 hover:border-amber-500/50 shadow-gray-100'}
+              transform transition-all duration-200 hover:border-t-2 flex flex-col h-fit
+              ${goal.Status === 'completed' ? 'border-emerald-500/50 shadow-emerald-100 hover:border-t-emerald-500' : 
+                goal.Status === 'incomplete' ? 'border-rose-500/50 shadow-rose-100 hover:border-t-rose-500' : 
+                'border-gray-200 hover:border-amber-500/50 hover:border-t-amber-500 shadow-gray-100'}
             `}
           >
             <CardHeader className="pb-3 flex-none">
@@ -574,7 +574,7 @@ export default function GoalList({ goals, onGoalUpdated, onGoalDeleted, isAdmin 
                 <p className="text-gray-500">No goals match the selected filter</p>
               </div>
             ) : (
-              <div className="max-w-full overflow-x-hidden">
+              <div className="max-w-full overflow-x-hidden overflow-y-hidden pb-1">
                 {viewType === 'grid' ? renderGridView() : renderListView()}
               </div>
             )}
