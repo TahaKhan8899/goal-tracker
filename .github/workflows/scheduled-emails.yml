@@ -12,12 +12,12 @@ jobs:
   send-reminder-email:
     runs-on: ubuntu-latest
     # This job runs at 8:00 AM UTC daily
-    if: github.event.schedule == '0 8 * * *'
+    if: github.event.schedule == '0 8 * * *' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Trigger reminder email API
         run: |
-          curl -X POST ${{ secrets.VERCEL_APP_URL }}/api/email/send-reminders \
-            -H "Authorization: Bearer ${{ secrets.API_SECRET_KEY }}" \
+          curl -X GET ${{ secrets.VERCEL_APP_URL }}/api/reminders/sendReminders \
+            -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
             -H "Content-Type: application/json"
       - name: Log completion
         run: echo "Reminder email job completed at $(date)"
@@ -25,12 +25,12 @@ jobs:
   send-weekly-digest:
     runs-on: ubuntu-latest
     # This job runs at 9:00 AM UTC on Sundays
-    if: github.event.schedule == '0 9 * * 0'
+    if: github.event.schedule == '0 9 * * 0' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Trigger weekly digest email API
         run: |
-          curl -X POST ${{ secrets.VERCEL_APP_URL }}/api/email/send-weekly-digest \
-            -H "Authorization: Bearer ${{ secrets.API_SECRET_KEY }}" \
+          curl -X GET ${{ secrets.VERCEL_APP_URL }}/api/reminders/sendDigest \
+            -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
             -H "Content-Type: application/json"
       - name: Log completion
         run: echo "Weekly digest job completed at $(date)" 
