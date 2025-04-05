@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
 import GoalForm from '@/components/GoalForm';
 import GoalList from '@/components/GoalList';
+import { Card, CardContent } from '@/components/ui/card';
 
 type Goal = {
   id: string;
@@ -90,6 +91,25 @@ export default function Dashboard() {
     router.push('/');
   };
 
+  // Calculate statistics
+  const getStats = () => {
+    const total = goals.length;
+    const completed = goals.filter(g => g.Status === 'completed').length;
+    const incomplete = goals.filter(g => g.Status === 'incomplete').length;
+    const pending = goals.filter(g => g.Status === 'pending').length;
+    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+    
+    return {
+      total,
+      completed,
+      incomplete,
+      pending,
+      completionRate
+    };
+  };
+
+  const stats = getStats();
+
   if (!user) {
     return null; // Will redirect in useEffect
   }
@@ -112,6 +132,30 @@ export default function Dashboard() {
             </Button>
           </div>
         </div>
+
+        {/* Goal Summary Section */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="text-center p-4 bg-gray-50 rounded-lg">
+                <h3 className="text-2xl font-bold">{stats.total}</h3>
+                <p className="text-gray-500">Total Goals</p>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <h3 className="text-2xl font-bold text-green-600">{stats.completed}</h3>
+                <p className="text-gray-500">Completed</p>
+              </div>
+              <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                <h3 className="text-2xl font-bold text-yellow-600">{stats.pending}</h3>
+                <p className="text-gray-500">Pending</p>
+              </div>
+              <div className="text-center p-4 bg-red-50 rounded-lg">
+                <h3 className="text-2xl font-bold text-red-600">{stats.incomplete}</h3>
+                <p className="text-gray-500">Incomplete</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {showForm && (
           <div className="mb-8">

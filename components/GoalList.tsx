@@ -394,7 +394,7 @@ export default function GoalList({ goals, onGoalUpdated, onGoalDeleted, isAdmin 
             transform transition-all duration-200 hover:shadow-md
             ${goal.Status === 'completed' ? 'border-emerald-500/50 shadow-emerald-100' : 
               goal.Status === 'incomplete' ? 'border-rose-500/50 shadow-rose-100' : 
-              'border-gray-200 hover:border-amber-500/50 shadow-gray-100'}
+              'border-amber-200 hover:border-amber-500/50 shadow-gray-100'}
           `}
         >
           <div className="flex items-center justify-between gap-4 p-4">
