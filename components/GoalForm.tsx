@@ -50,10 +50,13 @@ export default function GoalForm({
     // Validate that target date is not in the past
     const selectedDate = new Date(targetDate);
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    selectedDate.setHours(0, 0, 0, 0);
+    
+    // Compare only year, month, and day by converting to strings
+    const selectedDateStr = selectedDate.toISOString().split('T')[0];
+    const todayStr = today.toISOString().split('T')[0];
 
-    if (selectedDate < today) {
+    // This allows selecting today as a valid date
+    if (selectedDateStr < todayStr) {
       toast.error('Target date cannot be in the past');
       return;
     }
