@@ -31,6 +31,7 @@ export async function GET() {
       goalsDueToday.map(async (goal) => {
         try {
           const result = await sendReminderEmail(goal);
+          console.log(`Reminder email sent to ${goal.Email} for goal: ${goal.Goal}`);
           return {
             goal: goal.Goal,
             email: goal.Email,

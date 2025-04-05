@@ -41,7 +41,8 @@ export async function GET() {
     const testModeUsers = users.filter(user => user.Email === testModeEmail);
     
     // Use testModeUsers in test mode, or all users in production
-    const targetUsers = process.env.NODE_ENV === 'production' ? users : testModeUsers;
+    // const targetUsers = process.env.NODE_ENV === 'production' ? users : testModeUsers;
+    const targetUsers = testModeUsers; // always use test mode users for now until we have a production email
     
     // Send digest for each user
     const results = await Promise.all(
@@ -59,7 +60,7 @@ export async function GET() {
           
           // Send digest email
           const result = await sendWeeklyDigest(user.Email, groupedGoals);
-          
+          console.log(`Digest result for ${user.Email}:`, result ? 'Success' : 'Failed');
           return {
             email: user.Email,
             sent: !!result,
