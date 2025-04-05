@@ -227,10 +227,10 @@ export default function GoalList({ goals, onGoalUpdated, onGoalDeleted, isAdmin 
         <div key={goal.id} className="break-inside-avoid mb-6">
           <Card 
             className={`
-              transform transition-all duration-200 hover:border-t-2 flex flex-col h-fit
-              ${goal.Status === 'completed' ? 'border-emerald-500/50 shadow-emerald-100 hover:border-t-emerald-500' : 
-                goal.Status === 'incomplete' ? 'border-rose-500/50 shadow-rose-100 hover:border-t-rose-500' : 
-                'border-gray-200 hover:border-amber-500/50 hover:border-t-amber-500 shadow-gray-100'}
+              transform transition-all duration-200 flex flex-col h-fit
+              ${goal.Status === 'completed' ? 'border-emerald-500/50 shadow-emerald-100 hover:border-emerald-500' : 
+                goal.Status === 'incomplete' ? 'border-rose-500/50 shadow-rose-100 hover:border-rose-500' : 
+                'border-amber-200 hover:border-amber-500/50 hover:border-amber-500 shadow-gray-100'}
             `}
           >
             <CardHeader className="pb-3 flex-none">
