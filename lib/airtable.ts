@@ -198,16 +198,61 @@ export const getAllGoals = async () => {
 
 // Reminder operations
 export const getGoalsDueToday = async () => {
-  const today = new Date().toISOString().split('T')[0];
+  // Get today's date in both formats
+  const today = new Date();
+  const isoDate = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+  const mmddyyyyDate = `${(today.getMonth() + 1)}/${today.getDate()}/${today.getFullYear()}`;
   
   try {
-    const records = await base('Goals')
+    // Get all pending goals
+    const allPendingGoals = await base('Goals')
       .select({
-        filterByFormula: `AND({Target Date} = '${today}', {Status} = 'pending')`,
+        filterByFormula: `{Status} = 'pending'`,
       })
       .firstPage();
     
-    return records.map((record) => ({
+    // Filter goals due today
+    const goalsForToday = allPendingGoals.filter(record => {
+      const targetDate = record.fields['Target Date'];
+      return targetDate === isoDate || targetDate === mmddyyyyDate;
+    });
+    
+    // If we have goals, get the user records to get email addresses
+    if (goalsForToday.length > 0) {
+      // Extract all user IDs from the goals
+      const userIds = goalsForToday.map(goal => 
+        Array.isArray(goal.fields.Email) ? goal.fields.Email[0] : goal.fields.Email
+      ).filter(Boolean);
+      
+      // Fetch user records to get email addresses
+      const usersQuery = userIds.map(id => `RECORD_ID()='${id}'`).join(',');
+      const users = await base('Users')
+        .select({
+          filterByFormula: `OR(${usersQuery})`,
+        })
+        .firstPage();
+      
+      // Create mapping of user ID to email
+      const userEmailMap = new Map();
+      users.forEach(user => {
+        userEmailMap.set(user.id, user.fields.Email);
+      });
+      
+      // Map the goals with actual email addresses
+      return goalsForToday.map(record => {
+        const userId = Array.isArray(record.fields.Email) 
+          ? record.fields.Email[0] 
+          : record.fields.Email;
+          
+        return {
+          id: record.id,
+          ...record.fields,
+          Email: userEmailMap.get(userId) || 'unknown@example.com',
+        };
+      });
+    }
+    
+    return goalsForToday.map((record) => ({
       id: record.id,
       ...record.fields,
     }));

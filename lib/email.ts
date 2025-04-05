@@ -4,19 +4,28 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 type Goal = {
   id: string;
-  Email: string;
+  Email: string | string[];
   Goal: string;
   'Target Date': string;
   Status: 'pending' | 'completed' | 'incomplete';
 };
 
+// Helper function to extract email from Airtable record
+const getEmailAddress = (email: string | string[]): string => {
+  if (Array.isArray(email)) {
+    return 'Unknown Email';
+  }
+  return email;
+};
+
 export async function sendReminderEmail(goal: Goal) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const emailTo = getEmailAddress(goal.Email);
   
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Goal Tracker <goals@example.com>',
-      to: goal.Email,
+      from: 'onboarding@resend.dev',
+      to: emailTo,
       subject: `Reminder: Your goal is due today`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
@@ -25,12 +34,12 @@ export async function sendReminderEmail(goal: Goal) {
           <p>Did you complete it?</p>
           
           <div style="margin: 30px 0;">
-            <a href="${appUrl}/api/goals/updateStatus?id=${goal.id}&status=completed&email=${encodeURIComponent(goal.Email)}" 
+            <a href="${appUrl}/api/goals/updateStatus?id=${goal.id}&status=completed&email=${encodeURIComponent(emailTo)}" 
                style="background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; margin-right: 10px; border-radius: 4px;">
               ✅ Yes, I completed it
             </a>
             
-            <a href="${appUrl}/api/goals/updateStatus?id=${goal.id}&status=incomplete&email=${encodeURIComponent(goal.Email)}" 
+            <a href="${appUrl}/api/goals/updateStatus?id=${goal.id}&status=incomplete&email=${encodeURIComponent(emailTo)}" 
                style="background-color: #f44336; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px;">
               ❌ No, I didn't complete it
             </a>
@@ -63,7 +72,7 @@ type GroupedGoals = {
 export async function sendWeeklyDigest(email: string, goals: GroupedGoals) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Goal Tracker <goals@example.com>',
+      from: 'onboarding@resend.dev',
       to: email,
       subject: 'Your Weekly Goal Progress Recap',
       html: `

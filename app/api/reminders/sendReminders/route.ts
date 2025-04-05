@@ -20,28 +20,43 @@ export async function GET() {
     const goalsDueToday = await getGoalsDueToday() as Goal[];
     
     if (goalsDueToday.length === 0) {
-      return NextResponse.json({ success: true, message: 'No reminders to send today' });
+      return NextResponse.json({ 
+        success: true, 
+        message: 'No reminders to send today'
+      });
     }
     
     // Send email for each goal
     const results = await Promise.all(
       goalsDueToday.map(async (goal) => {
-        const result = await sendReminderEmail(goal);
-        return {
-          goal: goal.Goal,
-          email: goal.Email,
-          sent: !!result,
-        };
+        try {
+          const result = await sendReminderEmail(goal);
+          return {
+            goal: goal.Goal,
+            email: goal.Email,
+            sent: !!result
+          };
+        } catch (error) {
+          return {
+            goal: goal.Goal,
+            email: goal.Email,
+            sent: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          };
+        }
       })
     );
     
     return NextResponse.json({
       success: true,
       message: `Sent ${results.filter(r => r.sent).length} reminders`,
-      results,
+      results
     });
   } catch (error) {
     console.error('Error sending reminders:', error);
-    return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      message: 'Server error' 
+    }, { status: 500 });
   }
 } 
