@@ -17,7 +17,7 @@ jobs:
       - name: Trigger reminder email API
         # Hard-coding the full URL for now
         run: |
-          curl -X GET "https://goal-tracker-taupe.vercel.app//api/reminders/sendReminders" \
+          curl -X GET "https://goal-tracker-taupe.vercel.app/api/reminders/sendReminders" \
             -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
             -H "Content-Type: application/json" \
             -v
@@ -32,7 +32,7 @@ jobs:
       - name: Trigger weekly digest email API
         # Hard-coding the full URL for now
         run: |
-          curl -X GET "https://goal-tracker-taupe.vercel.app//api/reminders/sendDigest" \
+          curl -X GET "https://goal-tracker-taupe.vercel.app/api/reminders/sendDigest" \
             -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
             -H "Content-Type: application/json" \
             -v
