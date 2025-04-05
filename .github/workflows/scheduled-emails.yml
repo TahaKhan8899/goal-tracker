@@ -16,7 +16,8 @@ jobs:
     steps:
       - name: Trigger reminder email API
         run: |
-          curl -X GET ${{ secrets.VERCEL_APP_URL }}/api/reminders/sendReminders \
+          echo "Calling URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}/api/reminders/sendReminders"
+          curl -X GET "${{ secrets.NEXT_PUBLIC_APP_URL }}/api/reminders/sendReminders" \
             -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
             -H "Content-Type: application/json"
       - name: Log completion
@@ -29,7 +30,8 @@ jobs:
     steps:
       - name: Trigger weekly digest email API
         run: |
-          curl -X GET ${{ secrets.VERCEL_APP_URL }}/api/reminders/sendDigest \
+          echo "Calling URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}/api/reminders/sendDigest"
+          curl -X GET "${{ secrets.NEXT_PUBLIC_APP_URL }}/api/reminders/sendDigest" \
             -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
             -H "Content-Type: application/json"
       - name: Log completion
